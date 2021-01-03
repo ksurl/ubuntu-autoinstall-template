@@ -1,0 +1,50 @@
+#cloud-config
+autoinstall:
+  version: 1
+  refresh_installer:
+    update: yes
+    channel: "stable/ubuntu-$REL"  
+  locale: en_US
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''  
+  network:
+    network:
+        version: 2
+        renderer: networkd
+        ethernets:
+            main:
+                match:
+                    name: ens*
+                addresses: [10.0.1.10/24]
+                gateway4: 10.0.1.1
+                nameservers:
+                    addresses: [10.0.1.1]
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches: [amd64]
+      uri: http://us.archive.ubuntu.com/ubuntu
+    - arches: [default]
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  storage:
+    layout:
+      name: lvm
+  identity:
+    hostname: HOSTNAME
+    password: PASSWORD
+    username: USERNAME
+  ssh:
+    allow-pw: true
+    authorized-keys: [ SSH_PUBLIC_KEY ]
+    install-server: true
+  late-commands:
+    - "echo 'Defaults:USERNAME !requiretty' > /target/etc/sudoers.d/USERNAME"
+    - "echo 'USERNAME ALL=(ALL) NOPASSWD: ALL' >> /target/etc/sudoers.d/USERNAME"
+    - "chmod 440 /target/etc/sudoers.d/USERNAME"
+  user-data:
+    runcmd:
+      - "usermod -u 997 USERNAME"
+      - "groupmod -g 997 USERNAME"
